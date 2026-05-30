@@ -1,39 +1,41 @@
 package com.amit_kundu_io.sdk.presentation
 
-
 import android.content.Context
 import com.amit_kundu_io.sdk.core.AiConfig
-import com.amit_kundu_io.sdk.core.AiResult
 import com.amit_kundu_io.sdk.core.Logger
 import com.amit_kundu_io.sdk.core.NotInitializedException
 import com.amit_kundu_io.sdk.core.Validation
-import kotlinx.coroutines.*
-import java.util.concurrent.atomic.AtomicBoolean
-
-
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 
 /**
- * Public SDK Entry Point.
+ * Public SDK singleton.
  *
- * Thread-safe singleton.
- *
- * Owns:
- * - SDK lifecycle
- * - Dependency graph access
- * - Coroutine scope lifecycle
+ * Firebase / Razorpay style entry point.
  */
 object SDK {
 
-    @Volatile
-    private var container:
-            AiAppContainer? = null
-
-    private val initialized =
-        AtomicBoolean(false)
+    const val VERSION = "1.0.0"
 
     @Volatile
-    private var sdkScope =
-        createScope()
+    private var aiModule: AiModule? = null
+
+    @Volatile
+    private var initialized =
+        false
+
+    @Volatile
+    private var sdkScope = createScope()
+
+    /**
+     * Public lifecycle state.
+     */
+    val isInitialized: Boolean
+        get() = initialized
 
     /**
      * Initialize SDK.
@@ -45,50 +47,70 @@ object SDK {
         config: AiConfig
     ) {
 
-        if (initialized.get()) return
+        if (initialized) {
+            return
+        }
 
         synchronized(this) {
 
-            if (initialized.get()) return
-
-            Validation.validateConfig(
-                config
-            )
-
-            Logger.initialize(
-                config.debug
-            )
-
-            container =
-                AiAppContainer
-                    .getOrCreate(
-                        context = context,
-                        config = config
-                    )
-
-            if (!sdkScope.isActive) {
-                sdkScope =
-                    createScope()
+            if (initialized) {
+                return
             }
 
-            initialized.set(true)
+            Validation.validateConfig(config)
 
-            Logger.i(
-                "MyAi initialized."
-            )
+            try {
+
+                Logger.initialize(config.debug)
+
+                val graph =
+                    AiAppContainer
+                        .getOrCreate(
+                            context = context,
+                            config = config
+                        )
+
+                if (!sdkScope.isActive) {
+                    sdkScope = createScope()
+                }
+
+                aiModule = AiModule(graph)
+
+                initialized = true
+
+                Logger.i("SDK initialized. v$VERSION")
+
+            } catch (t: Throwable) {
+
+                initialized = false
+                aiModule = null
+
+                Logger.e("SDK initialization failed.", t)
+
+                throw t
+            }
         }
     }
 
     /**
-     * Public access to SDK features.
+     * Public API surface.
      */
     val ai: AiModule
-        get() = AiModule(
-            requireContainer()
-        )
+        get() {
+            return aiModule
+                ?: throw NotInitializedException(
+                    """
+                    SDK not initialized.
+
+                    Call:
+
+                    SDK.initialize(...)
+                    """.trimIndent()
+                )
+        }
 
     /**
-     * Destroy SDK resources.
+     * Shutdown SDK.
      *
      * Safe for repeated calls.
      */
@@ -96,39 +118,21 @@ object SDK {
 
         synchronized(this) {
 
-            if (!initialized.get()) {
-                return
-            }
+            if (!initialized) { return }
 
-            initialized.set(false)
-
-            container = null
-
+            initialized = false
+            aiModule = null
             AiAppContainer.clear()
-
             sdkScope.cancel()
 
-            Logger.i(
-                "MyAi shutdown."
-            )
+            Logger.i("SDK shutdown complete.")
         }
     }
 
     /**
-     * Fast container lookup.
+     * Dedicated internal scope.
      */
-    private fun requireContainer():
-            AiAppContainer {
-
-        return container
-            ?: throw NotInitializedException()
-    }
-
-    /**
-     * Dedicated SDK scope.
-     */
-    private fun createScope():
-            CoroutineScope {
+    private fun createScope(): CoroutineScope {
 
         return CoroutineScope(
 

@@ -13,7 +13,7 @@ class ValidationException(
     message: String
 ) : MyAiException(message)
 
-class NotInitializedException :
+class NotInitializedException(trimIndent: String) :
     MyAiException(
         "SDK not initialized."
     )

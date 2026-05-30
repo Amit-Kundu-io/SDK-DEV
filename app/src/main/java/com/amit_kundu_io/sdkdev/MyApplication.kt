@@ -14,7 +14,7 @@ class MyApplication: Application() {
             androidContext(this@MyApplication)
            // MyAi.initialize(apiKey = "YOUR_KEY")
 
-            SDK.initialize(applicationContext, config = AiConfig("Key","jh"))
+            SDK.initialize(applicationContext, config = AiConfig("Amit478ku65du"))
 
             //modules(appModule)
         }

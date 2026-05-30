@@ -33,14 +33,11 @@ internal object HttpClientFactory {
 
             install(HttpTimeout) {
 
-                connectTimeoutMillis =
-                    config.connectTimeoutMillis
+                connectTimeoutMillis = config.connectTimeoutMillis
 
-                requestTimeoutMillis =
-                    config.requestTimeoutMillis
+                requestTimeoutMillis = config.requestTimeoutMillis
 
-                socketTimeoutMillis =
-                    config.socketTimeoutMillis
+                socketTimeoutMillis = config.socketTimeoutMillis
             }
 
             install(Logging) {

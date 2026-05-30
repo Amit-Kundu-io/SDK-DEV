@@ -7,88 +7,57 @@ import com.amit_kundu_io.sdk.core.Logger
 import com.amit_kundu_io.sdk.data.AiApiService
 import com.amit_kundu_io.sdk.data.AiRepository
 import com.amit_kundu_io.sdk.data.AiRepositoryImpl
-import com.amit_kundu_io.sdk.domain.GenerateUseCase
 import com.amit_kundu_io.sdk.domain.UseCaseFactory
 import io.ktor.client.HttpClient
-import kotlin.concurrent.atomics.AtomicBoolean
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
-
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Internal SDK dependency container.
+ * Internal SDK dependency graph.
  *
- * Production-ready singleton dependency graph.
- *
- * Owns:
- * - HttpClient lifecycle
- * - Network layer
- * - Repository layer
- * - UseCases
- *
- * Characteristics:
- * - Thread-safe
- * - Lazy initialization
- * - Double-checked singleton
- * - Leak-safe
- * - Resource safe shutdown
- * - Firebase-style internal manual DI
+ * Firebase / Razorpay style manual DI.
  */
 internal class AiAppContainer private constructor(
     context: Context,
     private val config: AiConfig
 ) : AutoCloseable {
 
-    /**
-     * Leak-safe application context.
-     */
-    private val appContext: Context =
-        context.applicationContext
+    internal val appContext: Context = context.applicationContext
+
+    private val closed = AtomicBoolean(false)
 
     /**
-     * Prevent duplicate cleanup.
+     * Shared process HttpClient.
      */
-    @OptIn(ExperimentalAtomicApi::class)
-    private val closed =
-        AtomicBoolean(false)
+    private val clientDelegate =
+        lazy(
+            LazyThreadSafetyMode.SYNCHRONIZED
+        ) {
 
-    /**
-     * Lazy HttpClient delegate.
-     *
-     * Expensive resource.
-     * Create only when first needed.
-     */
-    private val clientDelegate = lazy(
-        LazyThreadSafetyMode.SYNCHRONIZED
-    ) {
+            HttpClientFactory.create(
+                config = config
+            )
+        }
 
-        HttpClientFactory.create(
-            config = config
-        )
-    }
-
-    /**
-     * Shared singleton HttpClient.
-     */
     internal val client: HttpClient
-        get() = clientDelegate.value
+        get() {
 
-    /**
-     * Network service singleton.
-     */
-    internal val apiService: AiApiService by lazy(
+            requireOpen()
+            return clientDelegate.value
+        }
+
+    internal val apiService:
+            AiApiService by lazy(
         LazyThreadSafetyMode.SYNCHRONIZED
     ) {
 
         AiApiService(
             client = client,
-            baseUrl = config.baseUrl
+            baseUrl = ""
         )
     }
 
-    /**
-     * Repository singleton.
-     */
-    internal val repository: AiRepository by lazy(
+    internal val repository:
+            AiRepository by lazy(
         LazyThreadSafetyMode.SYNCHRONIZED
     ) {
 
@@ -97,45 +66,51 @@ internal class AiAppContainer private constructor(
         )
     }
 
-    /**
-     * UseCase.
-     */
-    internal val useCases by lazy {
-
-        UseCaseFactory(
-            repository
-        )
+    internal val useCases by lazy(
+        LazyThreadSafetyMode.SYNCHRONIZED
+    ) {
+        UseCaseFactory(repository = repository)
     }
 
-
-    /**
-     * Cleanup SDK resources.
-     *
-     * Safe for multiple calls.
-     */
-    @OptIn(ExperimentalAtomicApi::class)
     override fun close() {
 
-        if (!closed.compareAndSet(false, true)) {
+        if (
+            !closed.compareAndSet(false, true)
+        ) {
             return
         }
 
-        try {
+        runCatching {
 
-            if (clientDelegate.isInitialized()) {
+            if (
+                clientDelegate.isInitialized()
+            ) {
+
                 client.close()
             }
 
-            Logger.i(
-                "AiAppContainer closed."
-            )
+        }.onSuccess {
 
-        } catch (t: Throwable) {
+            Logger.i("AiAppContainer closed.")
 
-            Logger.e(
-                "Container cleanup failed.",
-                t
-            )
+        }.onFailure {
+
+            Logger.e("Container cleanup failed.", it)
+        }
+    }
+
+    private fun requireOpen() {
+
+        check(
+            !closed.get()
+        ) {
+
+            """
+            SDK container already closed.
+
+            Call SDK.initialize()
+            before using SDK APIs.
+            """.trimIndent()
         }
     }
 
@@ -150,37 +125,20 @@ internal class AiAppContainer private constructor(
                 AiConfig? = null
 
         /**
-         * Thread-safe singleton creation.
-         *
-         * Prevents:
-         * - double initialization
-         * - race conditions
-         * - different config reinit bugs
+         * Singleton graph creation.
          */
         fun getOrCreate(
             context: Context,
             config: AiConfig
         ): AiAppContainer {
 
-            instance?.let { existing ->
+            instance?.let {
 
-                if (
-                    initializedConfig != null &&
-                    initializedConfig != config
-                ) {
+                validateConfig(
+                    config
+                )
 
-                    throw IllegalStateException(
-                        """
-                        SDK already initialized
-                        with different config.
-
-                        Call shutdown()
-                        before reinitialization.
-                        """.trimIndent()
-                    )
-                }
-
-                return existing
+                return it
             }
 
             return synchronized(this) {
@@ -189,13 +147,19 @@ internal class AiAppContainer private constructor(
                     return it
                 }
 
+                validateConfig(
+                    config
+                )
+
                 AiAppContainer(
-                    context = context.applicationContext,
+                    context =
+                        context.applicationContext,
                     config = config
                 ).also {
 
                     instance = it
-                    initializedConfig = config
+                    initializedConfig =
+                        config
 
                     Logger.i(
                         "AiAppContainer initialized."
@@ -205,13 +169,17 @@ internal class AiAppContainer private constructor(
         }
 
         /**
-         * Destroy dependency graph.
+         * Destroy graph.
          */
         fun clear() {
 
             synchronized(this) {
 
-                instance?.close()
+                val current =
+                    instance
+                        ?: return
+
+                current.close()
 
                 instance = null
                 initializedConfig = null
@@ -219,6 +187,31 @@ internal class AiAppContainer private constructor(
                 Logger.i(
                     "AiAppContainer cleared."
                 )
+            }
+        }
+
+        /**
+         * Prevent unsafe reinit.
+         */
+        private fun validateConfig(
+            newConfig: AiConfig
+        ) {
+
+            val existing =
+                initializedConfig
+                    ?: return
+
+            require(
+                existing == newConfig
+            ) {
+
+                """
+                SDK already initialized
+                with different config.
+
+                Call shutdown()
+                before reinitialization.
+                """.trimIndent()
             }
         }
     }

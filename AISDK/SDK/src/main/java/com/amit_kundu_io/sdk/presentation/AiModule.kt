@@ -5,17 +5,14 @@ import com.amit_kundu_io.sdk.core.AiResult
 import com.amit_kundu_io.sdk.core.Validation
 
 class AiModule internal constructor(
-    private val container:
-    AiAppContainer
+    private val container: AiAppContainer
 ) {
 
     suspend fun generate(
         prompt: String
     ): AiResult<String> {
 
-        Validation.validatePrompt(
-            prompt
-        )
+        Validation.validatePrompt(prompt)
 
         return container
             .useCases
