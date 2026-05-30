@@ -43,6 +43,7 @@ dependencies {
 
     implementation(project(":AISDK:Ai_SDK"))
     implementation(project(":AISDK:SDK"))
+    implementation(project(":voicevault-sdk"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

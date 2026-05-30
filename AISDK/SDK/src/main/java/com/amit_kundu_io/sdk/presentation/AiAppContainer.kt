@@ -19,7 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal class AiAppContainer private constructor(
     context: Context,
     private val config: AiConfig
-) : AutoCloseable {
+)
+    : AutoCloseable {
 
     internal val appContext: Context = context.applicationContext
 
