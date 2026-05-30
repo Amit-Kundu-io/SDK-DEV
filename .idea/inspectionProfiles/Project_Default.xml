@@ -1,0 +1,61 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="ComposePreviewDimensionRespectsLimit" enabled="$SHOW_HEADER$" level="WARNING" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="ComposePreviewMustBeTopLevelFunction" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="ComposePreviewNeedsComposableAnnotation" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="ComposePreviewNotSupportedInUnitTestFiles" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="GlancePreviewDimensionRespectsLimit" enabled="$SHOW_HEADER$" level="WARNING" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="GlancePreviewMustBeTopLevelFunction" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="GlancePreviewNeedsComposableAnnotation" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="GlancePreviewNotSupportedInUnitTestFiles" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="PreviewAnnotationInFunctionWithParameters" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="PreviewApiLevelMustBeValid" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="PreviewDeviceShouldUseNewSpec" enabled="$SHOW_HEADER$" level="WEAK WARNING" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="PreviewFontScaleMustBeGreaterThanZero" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="PreviewMultipleParameterProviders" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="PreviewParameterProviderOnFirstParameter" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+    <inspection_tool class="PreviewPickerAnnotation" enabled="$SHOW_HEADER$" level="ERROR" enabled_by_default="$SHOW_HEADER$">
+      <option name="composableFile" value="$SHOW_HEADER$" />
+      <option name="previewFile" value="$SHOW_HEADER$" />
+    </inspection_tool>
+  </profile>
+</component>
