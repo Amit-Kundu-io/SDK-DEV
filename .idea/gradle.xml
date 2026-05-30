@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/AISDK/Ai_SDK" />
             <option value="$PROJECT_DIR$/AISDK/SDK" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/voicevault-sdk" />
           </set>
         </option>
       </GradleProjectSettings>

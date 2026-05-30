@@ -26,3 +26,4 @@ rootProject.name = "SDKDev"
 include(":app")
 include(":AISDK:Ai_SDK")
 include(":AISDK:SDK")
+include(":voicevault-sdk")
