@@ -20,7 +20,4 @@ package com.amit_kundu_io.voicevault_sdk.audio
  * @property totalTime The total duration of the audio in milliseconds.
  * @property time The current playback position in milliseconds.
  */
-data class PlaybackTime(
-    val totalTime : Long,
-    val time : Long
-)
+data class PlaybackTime(val totalTime: Long, val time: Long)

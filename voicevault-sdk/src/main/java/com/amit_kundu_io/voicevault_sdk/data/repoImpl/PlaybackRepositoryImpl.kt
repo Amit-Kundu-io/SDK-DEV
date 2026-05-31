@@ -18,31 +18,29 @@ package com.amit_kundu_io.voicevault_sdk.data.repoImpl
 
 import com.amit_kundu_io.voicevault_sdk.audio.AudioPlayer
 import com.amit_kundu_io.voicevault_sdk.data.repo.PlaybackRepository
+import java.io.File
 
 /**
  * Implementation of [PlaybackRepository] that delegates to an [AudioPlayer].
  */
-internal class
-PlaybackRepositoryImpl(
-
+internal class PlaybackRepositoryImpl(
     private val player:
     AudioPlayer
 ) : PlaybackRepository {
 
-    override suspend fun play(
-        path: String
-    ) {
-
+    override suspend fun play(path: String) {
         player.play(path)
     }
 
-    override suspend fun pause() {
+    override suspend fun play(file: File) {
+        player.play(file.absolutePath)
+    }
 
+    override suspend fun pause() {
         player.pause()
     }
 
     override suspend fun resume() {
-
         player.resume()
     }
 

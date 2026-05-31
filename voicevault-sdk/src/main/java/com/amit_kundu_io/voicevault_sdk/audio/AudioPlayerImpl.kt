@@ -2,11 +2,18 @@ package com.amit_kundu_io.voicevault_sdk.audio
 
 import android.media.MediaPlayer
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -55,9 +62,7 @@ internal class AudioPlayerImpl(
      */
     override suspend fun play(path: String) {
         mutex.withLock {
-            if (_playbackState.value == PlaybackState.Preparing ||
-                _playbackState.value == PlaybackState.Playing
-            ) return // prevent duplicate play calls
+            if (_playbackState.value == PlaybackState.Preparing || _playbackState.value == PlaybackState.Playing) return // prevent duplicate play calls
 
             releasePlayer(resetState = false)
             _playbackState.value = PlaybackState.Preparing
@@ -67,9 +72,7 @@ internal class AudioPlayerImpl(
             // Heavy I/O offloaded to background dispatcher
             withContext(Dispatchers.IO) {
                 val file = File(path)
-                require(file.exists() && file.canRead()) {
-                    "Invalid audio path: $path"
-                }
+                require(file.exists() && file.canRead()) { "Invalid audio path: $path" }
                 player = MediaPlayer().apply { setDataSource(path) }
             }
 
@@ -88,9 +91,7 @@ internal class AudioPlayerImpl(
 
                 setOnCompletionListener { mp ->
                     externalScope.launch(dispatcher) {
-                        mutex.withLock {
-                            if (player === mp) cleanupAfterCompletion()
-                        }
+                        mutex.withLock { if (player === mp) cleanupAfterCompletion() }
                     }
                 }
 
@@ -98,9 +99,8 @@ internal class AudioPlayerImpl(
                     externalScope.launch(dispatcher) {
                         mutex.withLock {
                             if (player === mp) {
-                                _playbackState.value = PlaybackState.Error(
-                                    RuntimeException("Playback failed: $what $extra")
-                                )
+                                _playbackState.value =
+                                    PlaybackState.Error(RuntimeException("Playback failed: $what $extra"))
                                 releasePlayer()
                             }
                         }

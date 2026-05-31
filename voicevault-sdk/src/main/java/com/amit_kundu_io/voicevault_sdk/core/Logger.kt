@@ -18,18 +18,12 @@ internal object Logger {
      * Initializes the logger.
      * @param debug Whether to enable logging.
      */
-    fun initialize(
-        debug: Boolean
-    ) {
-        enabled = debug
-    }
+    fun initialize(debug: Boolean) { enabled = debug }
 
     /**
      * Logs a debug message.
      */
-    fun d(
-        message: String
-    ) {
+    fun d(message: String) {
         if (enabled) {
             Log.d(TAG, message)
         }
@@ -38,9 +32,7 @@ internal object Logger {
     /**
      * Logs an informational message.
      */
-    fun i(
-        message: String
-    ) {
+    fun i(message: String) {
         if (enabled) {
             Log.i(TAG, message)
         }
@@ -49,10 +41,7 @@ internal object Logger {
     /**
      * Logs an error message and optional [throwable].
      */
-    fun e(
-        message: String,
-        throwable: Throwable? = null
-    ) {
+    fun e(message: String, throwable: Throwable? = null) {
         if (enabled) {
             Log.e(
                 TAG,

@@ -49,7 +49,5 @@ sealed interface PlaybackState {
      * An error occurred during playback.
      * @property throwable The cause of the error.
      */
-    data class Error(
-        val throwable: Throwable
-    ) : PlaybackState
+    data class Error(val throwable: Throwable) : PlaybackState
 }

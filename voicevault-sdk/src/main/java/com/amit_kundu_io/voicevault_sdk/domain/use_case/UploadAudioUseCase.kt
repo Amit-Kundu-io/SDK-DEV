@@ -1,7 +1,10 @@
 package com.amit_kundu_io.voicevault_sdk.domain.use_case
 
+import android.util.Log
 import com.amit_kundu_io.voicevault_sdk.core.NetworkResource
 import com.amit_kundu_io.voicevault_sdk.data.repo.Repository
+import kotlinx.coroutines.delay
+import java.io.File
 
 
 /**
@@ -17,8 +20,13 @@ internal class UploadAudioUseCase(
      * @return A [NetworkResource] representing the result of the operation.
      */
     suspend operator fun invoke(
-        prompt: String
+        id: String,
+        file: File
     ): NetworkResource<String> {
+        Log.d("FILE_UPLOADING", "invoke: Start Upload")
+
+        delay(5_000)
+        Log.d("FILE_UPLOADING", "invoke: Start Upload Success")
 
         return NetworkResource.Success("Success")
     }

@@ -33,11 +33,7 @@ class AudioFileManager(
      */
     private val sdkDir: File by lazy {
 
-        File(
-            context.cacheDir,
-            "voicevault"
-        ).apply {
-
+        File(context.cacheDir, "voicevault").apply {
             if (!exists()) {
                 mkdirs()
             }
@@ -49,11 +45,7 @@ class AudioFileManager(
      * @return A [File] object pointing to a new .m4a file.
      */
     fun createRecordingFile(): File {
-
-        return File(
-            sdkDir,
-            "audio_${UUID.randomUUID()}.m4a"
-        )
+        return File(sdkDir, "audio_${UUID.randomUUID()}.m4a")
     }
 
     /**
@@ -61,9 +53,7 @@ class AudioFileManager(
      * @param file The file to delete.
      * @return True if the file was deleted, false otherwise.
      */
-    fun delete(
-        file: File
-    ): Boolean {
+    fun delete(file: File): Boolean {
         return file.exists() && file.delete()
     }
 

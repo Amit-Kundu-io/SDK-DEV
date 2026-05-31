@@ -16,11 +16,13 @@
 package com.amit_kundu_io.voicevault_sdk.voice
 
 import android.content.Context
+import com.amit_kundu_io.voicevault_sdk.audio.AudioRecorder
 import com.amit_kundu_io.voicevault_sdk.audio.PlaybackState
 import com.amit_kundu_io.voicevault_sdk.audio.PlaybackTime
 import com.amit_kundu_io.voicevault_sdk.core.Logger
 import com.amit_kundu_io.voicevault_sdk.core.Validation
 import com.amit_kundu_io.voicevault_sdk.core.VoiceVaultConfig
+import com.amit_kundu_io.voicevault_sdk.data.repo.PlaybackRepository
 import com.amit_kundu_io.voicevault_sdk.di.VoiceContainer
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +31,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
-import java.io.File
 
 /**
  * Main entry point for the VoiceVault SDK.
@@ -46,8 +47,7 @@ object VoiceVault {
 //    private var aiModule: AiModule? = null
 
     @Volatile
-    private var initialized =
-        false
+    private var initialized = false
 
     @Volatile
     private var sdkScope = createScope()
@@ -76,23 +76,14 @@ object VoiceVault {
         }
 
         synchronized(this) {
-
             if (initialized) {
                 return
             }
-
             Validation.validateConfig(config)
 
             try {
-
                 Logger.initialize(config.debug)
-
-                val graph =
-                    VoiceContainer
-                        .getOrCreate(
-                            context = context,
-                            config = config
-                        )
+                val graph = VoiceContainer.getOrCreate(context = context, config = config)
 
                 if (!sdkScope.isActive) {
                     sdkScope = createScope()
@@ -101,14 +92,12 @@ object VoiceVault {
                 //aiModule = AiModule(graph)
 
                 initialized = true
-
                 Logger.i("SDK initialized. v$VERSION")
 
             } catch (t: Throwable) {
 
                 initialized = false
                 //aiModule = null
-
                 Logger.e("SDK initialization failed.", t)
 
                 throw t
@@ -117,11 +106,9 @@ object VoiceVault {
     }
 
 
-// ===== ADD BELOW initialize() =====
 
     private val graph: VoiceContainer
         get() {
-
             check(initialized) {
 
                 """
@@ -135,6 +122,8 @@ object VoiceVault {
             return VoiceContainer.instance()
         }
 
+    private val useCases by lazy { graph.useCases }
+
 
     // ===== Public API surface =====
 
@@ -142,74 +131,21 @@ object VoiceVault {
      * A [StateFlow] representing the current [PlaybackState].
      */
     val playbackState: StateFlow<PlaybackState>
-        get() = graph
-            .player
-            .playbackState
+        get() = graph.player.playbackState
 
     /**
      * A [StateFlow] representing the current [PlaybackTime].
      */
     val playbackTime: StateFlow<PlaybackTime>
-        get() = graph
-            .player
-            .playbackTime
-
-    /**
-     * Starts a new audio recording session.
-     */
-    suspend fun startRecording() {
-
-        graph
-            .recordingRepository
-            .startRecording()
-    }
-
-    /**
-     * Pauses the current audio recording session.
-     */
-    suspend fun pauseRecording() {
-
-        graph
-            .recordingRepository
-            .pauseRecording()
-    }
-
-    /**
-     * Resumes a paused audio recording session.
-     */
-    suspend fun resumeRecording() {
-        graph
-            .recordingRepository
-            .resumeRecording()
-    }
-
-    /**
-     * Stops the current audio recording session and returns the recorded [File].
-     * @return The recorded audio file.
-     */
-    suspend fun stopRecording() = graph.recordingRepository.stopRecording()
+        get() = graph.player.playbackTime
 
 
-    // ===== ADD BELOW Recording API =====
+    val player: PlaybackRepository
+        get() = graph.playbackRepository
 
-    /**
-     * Starts playing the specified audio [file].
-     * @param file The audio file to play.
-     */
-    suspend fun play(file: File) {
-        graph
-            .playbackRepository
-            .play(
-                file.absolutePath
-            )
-    }
+    val recorder: AudioRecorder
+        get() = graph.recorder
 
-    /**
-     * Pauses the current audio playback.
-     */
-    suspend fun pausePlayback() {
-        graph.playbackRepository.pause()
-    }
 
     /**
      * A [StateFlow] indicating whether the SDK is currently recording.
@@ -223,58 +159,13 @@ object VoiceVault {
     val recordingTime: StateFlow<Long>
         get() = graph.recordingRepository.recordingTime
 
-    /**
-     * Resumes the paused audio playback.
+
+    /***
+     * Upload file
      */
-    suspend fun resumePlayback() {
 
-        graph
-            .playbackRepository
-            .resume()
-    }
+    fun uploadFile(id: String, filePath: String) { useCases.startWorkerUseCase.invoke(id, filePath) }
 
-    /**
-     * Stops the audio playback.
-     */
-    suspend fun stopPlayback() {
-
-        graph
-            .playbackRepository
-            .stop()
-    }
-
-
-
-
-    // ===== ADD BELOW Playback API =====
-
-//    suspend fun upload(
-//        file: java.io.File
-//    ) {
-//
-//        graph
-//            .repository
-//            .uploadAudio(
-//                file
-//            )
-//    }
-
-    /**
-     * Public API surface.
-     */
-//    val ai: AiModule
-//        get() {
-//            return aiModule
-//                ?: throw NotInitializedException(
-//                    """
-//                    SDK not initialized.
-//
-//                    Call:
-//
-//                    SDK.initialize(...)
-//                    """.trimIndent()
-//                )
-//        }
 
     /**
      * Shuts down the VoiceVault SDK and releases its resources.
@@ -300,17 +191,12 @@ object VoiceVault {
      */
     private fun createScope(): CoroutineScope {
 
-        return CoroutineScope(
-
-            SupervisorJob() +
-                    Dispatchers.IO +
-                    CoroutineExceptionHandler { _, throwable ->
-
-                        Logger.e(
-                            "SDK coroutine failure.",
-                            throwable
-                        )
-                    }
+        return CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
+            Logger.e(
+                "SDK coroutine failure.",
+                throwable
+            )
+        }
         )
     }
 }

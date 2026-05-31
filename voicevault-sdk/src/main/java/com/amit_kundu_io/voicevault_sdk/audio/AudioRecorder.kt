@@ -27,14 +27,12 @@ interface AudioRecorder {
     /**
      * A [StateFlow] that emits true when recording is in progress, false otherwise.
      */
-    val isRecordingFlow:
-            StateFlow<Boolean>
+    val isRecordingFlow: StateFlow<Boolean>
 
     /**
      * A [StateFlow] that emits the current recording duration in milliseconds.
      */
-    val recordingTime:
-            StateFlow<Long>
+    val recordingTime: StateFlow<Long>
 
     /**
      * Starts a new audio recording session.
@@ -55,13 +53,11 @@ interface AudioRecorder {
      * Stops the current audio recording session and returns the recorded [File].
      * @return The recorded audio file.
      */
-    suspend fun stopRecording():
-            File
+    suspend fun stopRecording(): File
 
     /**
      * Returns whether the recorder is currently recording.
      * @return True if recording, false otherwise.
      */
-    fun isRecording():
-            Boolean
+    fun isRecording(): Boolean
 }

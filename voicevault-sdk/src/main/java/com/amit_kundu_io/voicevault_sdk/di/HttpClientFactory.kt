@@ -45,9 +45,7 @@ internal object HttpClientFactory {
             install(HttpTimeout) {
 
                 connectTimeoutMillis = config.connectTimeoutMillis
-
                 requestTimeoutMillis = config.requestTimeoutMillis
-
                 socketTimeoutMillis = config.socketTimeoutMillis
             }
 
@@ -55,19 +53,12 @@ internal object HttpClientFactory {
 
                // logger = Logger.DEFAULT
 
-                level =
-                    if (config.debug) {
-                        LogLevel.ALL
-                    } else {
-                        LogLevel.NONE
-                    }
+                level = if (config.debug) { LogLevel.ALL } else { LogLevel.NONE }
             }
 
             defaultRequest {
 
-                contentType(
-                    ContentType.Application.Json
-                )
+                contentType(ContentType.Application.Json)
 
                 header(
                     HttpHeaders.Authorization,

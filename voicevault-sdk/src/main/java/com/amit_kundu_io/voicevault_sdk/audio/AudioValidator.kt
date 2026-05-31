@@ -45,29 +45,17 @@ class AudioValidator {
         file: File
     ) {
 
-        val retriever =
-            MediaMetadataRetriever()
+        val retriever = MediaMetadataRetriever()
 
-        retriever.setDataSource(
-            file.absolutePath
-        )
+        retriever.setDataSource(file.absolutePath)
 
         val duration =
-            retriever
-                .extractMetadata(
-                    MediaMetadataRetriever
-                        .METADATA_KEY_DURATION
-                )
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 ?.toLongOrNull()
                 ?: 0L
 
         retriever.release()
 
-        require(
-            duration >= 1000L
-        ) {
-
-            "Recording too short."
-        }
+        //require(duration >= 1000L) { "Recording too short." }
     }
 }

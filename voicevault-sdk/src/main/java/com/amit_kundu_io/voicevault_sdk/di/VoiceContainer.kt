@@ -30,11 +30,12 @@ import com.amit_kundu_io.voicevault_sdk.data.repoImpl.RecordingRepositoryImpl
 import com.amit_kundu_io.voicevault_sdk.data.repoImpl.RepositoryImpl
 import com.amit_kundu_io.voicevault_sdk.data.service.ApiService
 import com.amit_kundu_io.voicevault_sdk.domain.UseCaseFactory
+import com.amit_kundu_io.voicevault_sdk.worker.NotificationHelper
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.getValue
 
 
 /**
@@ -55,39 +56,24 @@ internal class VoiceContainer private constructor(
     /**
      * Shared process HttpClient.
      */
-    private val clientDelegate =
-        lazy(
-            LazyThreadSafetyMode.SYNCHRONIZED
-        ) {
-
-            HttpClientFactory.create(
-                config = config
-            )
+    private val clientDelegate = lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        HttpClientFactory.create(config = config)
         }
 
     internal val client: HttpClient
         get() {
-
             requireOpen()
             return clientDelegate.value
         }
 
-    internal val apiService:
-            ApiService by lazy(
-        LazyThreadSafetyMode.SYNCHRONIZED
-    ) {
-
+    internal val apiService: ApiService by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         ApiService(
             client = client,
             baseUrl = ""
         )
     }
 
-    internal val repository:
-            Repository by lazy(
-        LazyThreadSafetyMode.SYNCHRONIZED
-    ) {
-
+    internal val repository: Repository by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         RepositoryImpl(
             api = apiService
         )
@@ -97,72 +83,53 @@ internal class VoiceContainer private constructor(
      *Voice Di
      */
 
-    internal val fileManager by lazy(
-        LazyThreadSafetyMode.SYNCHRONIZED
-    ) {
-        AudioFileManager(
+    internal val fileManager by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        AudioFileManager(context = appContext)
+    }
+
+    internal val validator by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        AudioValidator()
+    }
+
+    internal val recorder: AudioRecorder by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        AudioRecorderImpl(
+            fileManager = fileManager,
             context = appContext
         )
     }
 
-    internal val validator by lazy(
-        LazyThreadSafetyMode.SYNCHRONIZED
-    ) {
-        AudioValidator()
-    }
-
-    internal val recorder:
-            AudioRecorder by lazy(
-        LazyThreadSafetyMode.SYNCHRONIZED
-    ) {
-        AudioRecorderImpl(
-            fileManager = fileManager, context = appContext
+    internal val player: AudioPlayer by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        AudioPlayerImpl(
+            sdkScope
         )
     }
 
-    internal val player:
-            AudioPlayer by lazy(
-        LazyThreadSafetyMode.SYNCHRONIZED
-    ) {
-        AudioPlayerImpl(sdkScope)
+
+    internal val recordingRepository by lazy {
+        RecordingRepositoryImpl(
+            recorder = recorder,
+            validator = validator
+        )
     }
 
-
-    internal val recordingRepository
-            by lazy {
-                RecordingRepositoryImpl(
-                    recorder = recorder,
-                    validator = validator
-                )
-            }
-
-    internal val playbackRepository
-            by lazy {
-                PlaybackRepositoryImpl(
-                    player = player
-                )
-            }
+    internal val playbackRepository by lazy { PlaybackRepositoryImpl(player = player) }
 
 
 
     internal val useCases by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-        UseCaseFactory(repository = repository)
+        UseCaseFactory(repository = repository, context = context)
     }
+
+
 
     override fun close() {
 
-        if (
-            !closed.compareAndSet(false, true)
-        ) {
+        if (!closed.compareAndSet(false, true)) {
             return
         }
 
         runCatching {
-
-            if (
-                clientDelegate.isInitialized()
-            ) {
-
+            if (clientDelegate.isInitialized()) {
                 client.close()
             }
 
@@ -178,9 +145,7 @@ internal class VoiceContainer private constructor(
 
     private fun requireOpen() {
 
-        check(
-            !closed.get()
-        ) {
+        check(!closed.get()) {
 
             """
             SDK container already closed.
@@ -209,22 +174,20 @@ internal class VoiceContainer private constructor(
 
             instance?.let {
 
-                validateConfig(
-                    config
-                )
+                validateConfig(config)
 
                 return it
             }
 
+
             return synchronized(this) {
 
-                instance?.let {
-                    return it
-                }
+                instance?.let { return it }
 
-                validateConfig(
-                    config
-                )
+                validateConfig(config)
+
+                NotificationHelper.createChannel(context)
+
 
                 VoiceContainer(
                     context = context.applicationContext,
@@ -243,9 +206,7 @@ internal class VoiceContainer private constructor(
 
         fun instance(): VoiceContainer {
 
-            return requireNotNull(
-                instance
-            ) {
+            return requireNotNull(instance) {
 
                 """
         VoiceContainer
@@ -264,9 +225,7 @@ internal class VoiceContainer private constructor(
 
             synchronized(this) {
 
-                val current =
-                    instance
-                        ?: return
+                val current = instance ?: return
 
                 current.close()
 
@@ -286,13 +245,9 @@ internal class VoiceContainer private constructor(
             newConfig: VoiceVaultConfig
         ) {
 
-            val existing =
-                initializedConfig
-                    ?: return
+            val existing = initializedConfig ?: return
 
-            require(
-                existing == newConfig
-            ) {
+            require(existing == newConfig) {
 
                 """
                 SDK already initialized

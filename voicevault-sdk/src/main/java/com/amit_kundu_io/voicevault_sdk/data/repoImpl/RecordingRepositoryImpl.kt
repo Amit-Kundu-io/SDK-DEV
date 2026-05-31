@@ -42,21 +42,15 @@ RecordingRepositoryImpl(
     override val recordingTime: StateFlow<Long>
         get() = recorder.recordingTime
 
-    override suspend fun
-            startRecording() {
-
+    override suspend fun startRecording() {
         recorder.startRecording()
     }
 
-    override suspend fun
-            pauseRecording() {
-
+    override suspend fun pauseRecording() {
         recorder.pauseRecording()
     }
 
-    override suspend fun
-            resumeRecording() {
-
+    override suspend fun resumeRecording() {
         recorder.resumeRecording()
     }
 
@@ -68,14 +62,9 @@ RecordingRepositoryImpl(
         return file
     }
 
-    override suspend fun delete(
-        file: File
-    ) {
+    override suspend fun delete(file: File) {
 
-        if (
-            file.exists()
-        ) {
-
+        if (file.exists()) {
             file.delete()
         }
     }

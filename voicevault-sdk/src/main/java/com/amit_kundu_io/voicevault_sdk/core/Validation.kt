@@ -26,9 +26,7 @@ internal object Validation {
      * @param config The configuration to validate.
      * @throws IllegalArgumentException if the configuration is invalid.
      */
-    fun validateConfig(
-        config: VoiceVaultConfig
-    ) {
+    fun validateConfig(config: VoiceVaultConfig) {
         require(config.apiKey.isNotBlank()) { "apiKey cannot be empty." }
     }
 
