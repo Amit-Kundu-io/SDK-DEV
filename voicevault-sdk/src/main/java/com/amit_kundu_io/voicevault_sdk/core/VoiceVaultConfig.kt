@@ -14,6 +14,15 @@ package com.amit_kundu_io.voicevault_sdk.core
  * Ensure changes are consistent with project guidelines and maintain
  * code readability and quality.
  */
+/**
+ * Configuration class for the VoiceVault SDK.
+ *
+ * @property apiKey The API key for accessing VoiceVault services.
+ * @property debug Whether to enable debug logging.
+ * @property connectTimeoutMillis The connection timeout for network requests in milliseconds.
+ * @property requestTimeoutMillis The request timeout for network requests in milliseconds.
+ * @property socketTimeoutMillis The socket timeout for network requests in milliseconds.
+ */
 data class VoiceVaultConfig(
     val apiKey: String,
     val debug: Boolean = false,

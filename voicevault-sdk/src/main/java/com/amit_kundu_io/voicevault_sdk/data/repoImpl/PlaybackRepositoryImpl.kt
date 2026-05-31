@@ -19,6 +19,9 @@ package com.amit_kundu_io.voicevault_sdk.data.repoImpl
 import com.amit_kundu_io.voicevault_sdk.audio.AudioPlayer
 import com.amit_kundu_io.voicevault_sdk.data.repo.PlaybackRepository
 
+/**
+ * Implementation of [PlaybackRepository] that delegates to an [AudioPlayer].
+ */
 internal class
 PlaybackRepositoryImpl(
 

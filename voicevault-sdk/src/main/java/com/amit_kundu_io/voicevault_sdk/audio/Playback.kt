@@ -15,6 +15,11 @@
 
 package com.amit_kundu_io.voicevault_sdk.audio
 
+/**
+ * Data class representing the playback time information.
+ * @property totalTime The total duration of the audio in milliseconds.
+ * @property time The current playback position in milliseconds.
+ */
 data class PlaybackTime(
     val totalTime : Long,
     val time : Long

@@ -16,13 +16,28 @@
 package com.amit_kundu_io.voicevault_sdk.data.repo
 
 
+/**
+ * Repository interface for managing audio playback.
+ */
 interface PlaybackRepository {
 
+    /**
+     * Starts playback of the audio file at the specified [path].
+     */
     suspend fun play(path:String)
 
+    /**
+     * Pauses the current playback.
+     */
     suspend fun pause()
 
+    /**
+     * Resumes the paused playback.
+     */
     suspend fun resume()
 
+    /**
+     * Stops the playback.
+     */
     suspend fun stop()
 }

@@ -19,8 +19,16 @@ package com.amit_kundu_io.voicevault_sdk.audio
 import android.media.MediaMetadataRetriever
 import java.io.File
 
+/**
+ * Utility class to validate recorded audio files.
+ */
 class AudioValidator {
 
+    /**
+     * Validates the provided [file] for existence, size, and duration.
+     * @param file The audio file to validate.
+     * @throws IllegalArgumentException if the file is invalid.
+     */
     fun validate(
         file: File
     ) {
@@ -29,6 +37,10 @@ class AudioValidator {
         validateDuration(file)
     }
 
+    /**
+     * Validates that the audio file has a minimum duration of 1 second.
+     * @param file The audio file to check.
+     */
     private fun validateDuration(
         file: File
     ) {

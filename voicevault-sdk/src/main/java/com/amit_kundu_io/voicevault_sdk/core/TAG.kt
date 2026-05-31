@@ -15,6 +15,12 @@
 
 package com.amit_kundu_io.voicevault_sdk.core
 
+/**
+ * Contains global tag constants for logging across the SDK.
+ */
 object TAG {
+    /**
+     * The primary tag used for logging within the VoiceVault SDK.
+     */
     const val key = "VoiceVaultTAG"
 }

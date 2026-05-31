@@ -13,6 +13,17 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 
+/**
+ * Implementation of [AudioRecorder] using Android's [MediaRecorder].
+ *
+ * This class handles the low-level details of recording audio to a file,
+ * including permission checks, file management, and recording state.
+ *
+ * @property context The application context.
+ * @property fileManager The manager for creating and deleting audio files.
+ * @property maxDurationMs The maximum allowed duration for a recording in milliseconds.
+ * @property maxFileSizeBytes The maximum allowed file size for a recording in bytes.
+ */
 class AudioRecorderImpl(
     private val context: Context,
     private val fileManager: AudioFileManager,

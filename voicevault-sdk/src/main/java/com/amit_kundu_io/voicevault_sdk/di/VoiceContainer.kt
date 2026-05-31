@@ -38,9 +38,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
- * Internal SDK dependency graph.
- *
- * Firebase / Razorpay style manual DI.
+ * Internal dependency container for the VoiceVault SDK.
+ * Manages the lifecycle of singletons used across the SDK.
  */
 internal class VoiceContainer private constructor(
     context: Context,

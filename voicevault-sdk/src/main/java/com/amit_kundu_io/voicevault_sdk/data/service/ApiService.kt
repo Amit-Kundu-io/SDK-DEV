@@ -16,6 +16,11 @@ import io.ktor.client.HttpClient
  * Ensure changes are consistent with project guidelines and maintain
  * code readability and quality.
  */
+/**
+ * Service class for making API requests using [HttpClient].
+ * @property client The Ktor HTTP client.
+ * @property baseUrl The base URL for the API.
+ */
 internal class ApiService(
     private val client: HttpClient,
     private val baseUrl: String

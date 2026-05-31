@@ -31,8 +31,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import java.io.File
 
+/**
+ * Main entry point for the VoiceVault SDK.
+ * This object provides methods to initialize, record, and play back audio.
+ */
 object VoiceVault {
 
+    /**
+     * The current version of the SDK.
+     */
     const val VERSION = "1.0.0"
 
 //    @Volatile
@@ -46,15 +53,18 @@ object VoiceVault {
     private var sdkScope = createScope()
 
     /**
-     * Public lifecycle state.
+     * Returns whether the SDK has been initialized.
      */
     val isInitialized: Boolean
         get() = initialized
 
     /**
-     * Initialize SDK.
+     * Initializes the VoiceVault SDK with the provided [context] and [config].
+     * This must be called before using any other SDK functions.
      *
-     * Safe for concurrent calls.
+     * @param context The application context.
+     * @param config The configuration for the SDK.
+     * @throws Throwable if initialization fails.
      */
     fun initialize(
         context: Context,
@@ -128,16 +138,25 @@ object VoiceVault {
 
     // ===== Public API surface =====
 
+    /**
+     * A [StateFlow] representing the current [PlaybackState].
+     */
     val playbackState: StateFlow<PlaybackState>
         get() = graph
             .player
             .playbackState
 
+    /**
+     * A [StateFlow] representing the current [PlaybackTime].
+     */
     val playbackTime: StateFlow<PlaybackTime>
         get() = graph
             .player
             .playbackTime
 
+    /**
+     * Starts a new audio recording session.
+     */
     suspend fun startRecording() {
 
         graph
@@ -145,6 +164,9 @@ object VoiceVault {
             .startRecording()
     }
 
+    /**
+     * Pauses the current audio recording session.
+     */
     suspend fun pauseRecording() {
 
         graph
@@ -152,17 +174,28 @@ object VoiceVault {
             .pauseRecording()
     }
 
+    /**
+     * Resumes a paused audio recording session.
+     */
     suspend fun resumeRecording() {
         graph
             .recordingRepository
             .resumeRecording()
     }
 
+    /**
+     * Stops the current audio recording session and returns the recorded [File].
+     * @return The recorded audio file.
+     */
     suspend fun stopRecording() = graph.recordingRepository.stopRecording()
 
 
     // ===== ADD BELOW Recording API =====
 
+    /**
+     * Starts playing the specified audio [file].
+     * @param file The audio file to play.
+     */
     suspend fun play(file: File) {
         graph
             .playbackRepository
@@ -171,16 +204,28 @@ object VoiceVault {
             )
     }
 
+    /**
+     * Pauses the current audio playback.
+     */
     suspend fun pausePlayback() {
         graph.playbackRepository.pause()
     }
 
+    /**
+     * A [StateFlow] indicating whether the SDK is currently recording.
+     */
     val isRecording: StateFlow<Boolean>
         get() = graph.recordingRepository.isRecording
 
+    /**
+     * A [StateFlow] representing the current recording duration in milliseconds.
+     */
     val recordingTime: StateFlow<Long>
         get() = graph.recordingRepository.recordingTime
 
+    /**
+     * Resumes the paused audio playback.
+     */
     suspend fun resumePlayback() {
 
         graph
@@ -188,6 +233,9 @@ object VoiceVault {
             .resume()
     }
 
+    /**
+     * Stops the audio playback.
+     */
     suspend fun stopPlayback() {
 
         graph
@@ -229,8 +277,7 @@ object VoiceVault {
 //        }
 
     /**
-     * Shutdown SDK.
-     *
+     * Shuts down the VoiceVault SDK and releases its resources.
      * Safe for repeated calls.
      */
     fun shutdown() {

@@ -15,5 +15,9 @@
 
 package com.amit_kundu_io.voicevault_sdk.core
 
+/**
+ * Interface or class for providing coroutine dispatchers.
+ * Currently serves as a placeholder for dispatcher management.
+ */
 class DispatcherProvider {
 }

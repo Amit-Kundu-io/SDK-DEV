@@ -22,6 +22,10 @@ import com.amit_kundu_io.voicevault_sdk.data.repo.RecordingRepository
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 
+/**
+ * Implementation of [RecordingRepository] that delegates to an [AudioRecorder]
+ * and uses an [AudioValidator] to ensure recording quality.
+ */
 internal class
 RecordingRepositoryImpl(
 

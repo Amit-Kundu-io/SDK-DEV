@@ -16,8 +16,16 @@
 package com.amit_kundu_io.voicevault_sdk.core
 
 
+/**
+ * Utility for validating SDK configuration and inputs.
+ */
 internal object Validation {
 
+    /**
+     * Validates the provided [config].
+     * @param config The configuration to validate.
+     * @throws IllegalArgumentException if the configuration is invalid.
+     */
     fun validateConfig(
         config: VoiceVaultConfig
     ) {

@@ -25,6 +25,15 @@ import java.io.File
  * Author: Amit Kundu
  * Created On: 31/05/2026
  */
+/**
+ * Implementation of [AudioPlayer] using Android's [MediaPlayer].
+ *
+ * This class manages the lifecycle of the [MediaPlayer] and provides thread-safe
+ * playback operations and state updates.
+ *
+ * @property externalScope The coroutine scope used for player events and position updates.
+ * @property dispatcher The dispatcher used for state updates and player interactions.
+ */
 internal class AudioPlayerImpl(
     private val externalScope: CoroutineScope,              // injected scope for lifecycle
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate // injected dispatcher

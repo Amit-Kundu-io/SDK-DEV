@@ -11,8 +11,18 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
+/**
+ * Factory for creating and configuring the Ktor [HttpClient] used by the SDK.
+ */
 internal object HttpClientFactory {
 
+    /**
+     * Creates a new [HttpClient] instance with the provided [config].
+     * Configures timeouts, logging, content negotiation, and default headers.
+     *
+     * @param config The SDK configuration.
+     * @return A configured [HttpClient] instance.
+     */
     fun create(
         config: VoiceVaultConfig
     ): HttpClient {
